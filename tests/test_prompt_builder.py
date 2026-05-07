@@ -5,6 +5,27 @@ from src.prompt_builder import (
 )
 
 
+def test_build_roundtable_prompt_with_json_template_does_not_raise():
+    personas = [
+        {"name": "Long-Term Value Allocator"},
+        {"name": "Market Structure Trader"},
+        {"name": "Behavioral Contrarian"},
+    ]
+    with open("prompts/roundtable_prompt.txt", "r", encoding="utf-8") as file:
+        template = file.read()
+
+    _, user_input = build_roundtable_prompt(
+        "Base instructions",
+        template,
+        personas,
+        "Why are people saying Buffett missed the rally?",
+    )
+
+    assert '"responses"' in user_input
+    assert "{persona_cards}" not in user_input
+    assert "{user_question}" not in user_input
+
+
 def test_persona_to_text_contains_persona_name():
     persona = {"name": "Long-Term Value Allocator", "core_beliefs": ["Price and value differ."]}
 

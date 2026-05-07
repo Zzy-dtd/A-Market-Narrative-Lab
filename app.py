@@ -5,7 +5,15 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.api_settings import LIVE_MODE, MOCK_MODE, is_mock_mode, resolve_openai_api_key
+from src.api_settings import (
+    DEFAULT_MODEL,
+    LIVE_MODE,
+    MOCK_MODE,
+    friendly_openai_error,
+    is_mock_mode,
+    normalize_model_name,
+    resolve_openai_api_key,
+)
 from src.demo_cases import DEMO_CASES
 from src.llm_client import LLMClient
 from src.persona_loader import load_all_personas
@@ -466,7 +474,11 @@ def render_settings_expander(personas: dict[str, dict], api_key: str) -> None:
                 placeholder="sk-...",
                 help="Stored only in this Streamlit session. It is not saved to disk.",
             )
-            st.text_input("Model name", key="model_name")
+            st.text_input(
+                "Model name",
+                key="model_name",
+                help="Use an OpenAI API model ID, for example gpt-5.2. Display names like 'GPT-5.4 mini' will be normalized to lowercase with hyphens.",
+            )
             st.checkbox(
                 "Enable web search",
                 key="enable_web_search",
@@ -520,7 +532,7 @@ def render_history() -> None:
 def init_session(personas: dict[str, dict]) -> None:
     st.session_state.setdefault("mode", "One-on-One")
     st.session_state.setdefault("selected_persona_name", list(personas.keys())[0])
-    st.session_state.setdefault("model_name", os.getenv("OPENAI_MODEL", "gpt-5.2"))
+    st.session_state.setdefault("model_name", os.getenv("OPENAI_MODEL", DEFAULT_MODEL))
     st.session_state.setdefault("api_mode", MOCK_MODE)
     st.session_state.setdefault("openai_api_key", "")
     st.session_state.setdefault("enable_web_search", False)
@@ -654,7 +666,7 @@ def main() -> None:
             st.stop()
 
         client = LLMClient(
-            model=st.session_state.model_name,
+            model=normalize_model_name(st.session_state.model_name),
             api_key=api_key,
             mock=mock,
             enable_web_search=st.session_state.enable_web_search,
@@ -663,7 +675,7 @@ def main() -> None:
             try:
                 response = client.generate(instructions, user_input)
             except Exception as exc:
-                st.error(f"OpenAI API call failed: {exc}")
+                st.error(friendly_openai_error(exc))
                 st.stop()
 
         st.session_state.latest_question = question

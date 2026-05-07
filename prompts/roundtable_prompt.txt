@@ -27,23 +27,23 @@ Do not wrap the JSON in markdown code fences.
 Do not include any text before or after the JSON.
 
 Expected JSON structure:
-{
+{{
   "responses": [
-    {
+    {{
       "persona_id": "value_allocator",
       "persona_name": "Long-Term Value Allocator",
       "message": "..."
-    },
-    {
+    }},
+    {{
       "persona_id": "market_structure_trader",
       "persona_name": "Market Structure Trader",
       "message": "..."
-    },
-    {
+    }},
+    {{
       "persona_id": "behavioral_contrarian",
       "persona_name": "Behavioral Contrarian",
       "message": "..."
-    }
+    }}
   ],
   "learning_takeaway": "..."
-}
+}}

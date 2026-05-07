@@ -1,6 +1,8 @@
 import json
 import os
 
+from src.api_settings import DEFAULT_MODEL, normalize_model_name
+
 
 MOCK_NOTICE = "[Mock response - set OPENAI_API_KEY to enable live model output]"
 
@@ -13,7 +15,7 @@ class LLMClient:
         mock: bool = False,
         enable_web_search: bool = False,
     ):
-        self.model = model or os.getenv("OPENAI_MODEL", "gpt-5.2")
+        self.model = normalize_model_name(model or os.getenv("OPENAI_MODEL", DEFAULT_MODEL))
         self.api_key = api_key
         self.mock = mock
         self.enable_web_search = enable_web_search
