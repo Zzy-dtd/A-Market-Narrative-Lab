@@ -1,38 +1,63 @@
 # Market Narrative Lab
 
-A conversational market-thinking simulator that helps users learn how different types of market participants interpret stocks, markets, narratives, and crowd behavior.
+Market Narrative Lab is an early demo for a conversational market-thinking simulator.
 
-## What this is
+The core idea is simple:
 
-An educational AI mentor for market reasoning.
+> Learn how different investors think, not copy their trades.
 
-## What this is not
+Instead of giving stock picks, trading signals, or buy/sell recommendations, the project explores how different types of market participants might reason about:
 
-- Not a stock picker
-- Not a trading signal generator
-- Not personalized investment advice
-- Not a replacement for professional financial advice
+- individual stocks
+- broad market conditions
+- valuation debates
+- investor behavior
+- online market narratives
+- crowd psychology
+- speculative episodes
+- trading structure
 
-## Core idea
-
-"Learn how different investors think, not copy their trades."
-
-## Personas
+The current demo includes three experimental personas:
 
 - Long-Term Value Allocator
 - Market Structure Trader
 - Behavioral Contrarian
 
-## Run locally
+## Current Status
+
+This repository is only a working MVP demo.
+
+The current version is useful for testing the product direction, but it is not the final product. The reasoning logic, prompt structure, response format, and frontend design all still need significant iteration.
+
+In particular, the app still needs work on:
+
+- making the conversation feel more natural
+- improving the visual chat interface
+- refining persona behavior and response quality
+- improving roundtable discussion logic
+- connecting external information sources such as news or market data APIs
+- making the product experience less like a demo and more like a finished learning tool
+
+## What This Is Not
+
+Market Narrative Lab is not:
+
+- a stock picker
+- a trading signal generator
+- personalized investment advice
+- a replacement for professional financial advice
+- a tool that tells users what to buy or sell
+
+## Run Locally
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-## Environment variables
+## Environment Variables
 
-Create a `.env` file:
+Create a `.env` file if you want to use live OpenAI model output:
 
 ```bash
 OPENAI_API_KEY=your_api_key_here
@@ -40,20 +65,3 @@ OPENAI_MODEL=gpt-5.2
 ```
 
 If no API key is provided, the app runs in mock mode.
-
-## Example questions
-
-- Recently the stock market has rallied strongly, but Berkshire has been holding a large cash position. Some people online say Buffett missed the rally and no longer understands the current market. How should I think about this narrative?
-- Many investors say AI stocks are expensive, but valuation does not matter because the future growth opportunity is so large. How should I think about this argument?
-- A heavily shorted stock suddenly rises sharply, and people online say retail traders can force institutions to cover. What does this narrative reveal about market participants?
-- I often notice that after a stock goes up a lot, people suddenly start explaining why the company is great. Before the price move, nobody cared. Why does this happen?
-- During strong bull markets, cautious investors are often mocked as outdated or too conservative. What can we learn from this behavior?
-
-## Future improvements
-
-- Add RAG over investor letters, market commentary, and historical case studies
-- Add real-time market data
-- Add social sentiment input
-- Add source citations
-- Add user-uploaded article analysis
-- Add more personas, such as Macro Regime Trader and Narrative Growth Investor
