@@ -4,7 +4,7 @@ Market Narrative Lab is an early demo for a conversational market-thinking simul
 
 The core idea is simple:
 
-> Learn how different investors think, not copy their trades.
+> Learn how different investors think.
 
 Instead of giving stock picks, trading signals, or buy/sell recommendations, the project explores how different types of market participants might reason about:
 
@@ -38,15 +38,6 @@ In particular, the app still needs work on:
 - connecting external information sources such as news or market data APIs
 - making the product experience less like a demo and more like a finished learning tool
 
-## What This Is Not
-
-Market Narrative Lab is not:
-
-- a stock picker
-- a trading signal generator
-- personalized investment advice
-- a replacement for professional financial advice
-- a tool that tells users what to buy or sell
 
 ## Run Locally
 
