@@ -6,10 +6,17 @@ MOCK_NOTICE = "[Mock response - set OPENAI_API_KEY to enable live model output]"
 
 
 class LLMClient:
-    def __init__(self, model: str | None = None, mock: bool = False):
+    def __init__(
+        self,
+        model: str | None = None,
+        api_key: str | None = None,
+        mock: bool = False,
+        enable_web_search: bool = False,
+    ):
         self.model = model or os.getenv("OPENAI_MODEL", "gpt-5.2")
+        self.api_key = api_key
         self.mock = mock
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        self.enable_web_search = enable_web_search
 
     def generate(self, instructions: str, user_input: str) -> str:
         if self.mock or not self.api_key:
@@ -21,11 +28,15 @@ class LLMClient:
             raise RuntimeError("The openai package is required for live model output.") from exc
 
         client = OpenAI(api_key=self.api_key)
-        response = client.responses.create(
-            model=self.model,
-            instructions=instructions,
-            input=user_input,
-        )
+        kwargs = {
+            "model": self.model,
+            "instructions": instructions,
+            "input": user_input,
+        }
+        if self.enable_web_search:
+            kwargs["tools"] = [{"type": "web_search"}]
+
+        response = client.responses.create(**kwargs)
         return response.output_text
 
     def _mock_response(self, user_input: str) -> str:

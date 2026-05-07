@@ -5,6 +5,7 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 
+from src.api_settings import LIVE_MODE, MOCK_MODE, is_mock_mode, resolve_openai_api_key
 from src.demo_cases import DEMO_CASES
 from src.llm_client import LLMClient
 from src.persona_loader import load_all_personas
@@ -315,6 +316,26 @@ def render_header() -> None:
     )
 
 
+def render_status_chips(api_key: str) -> None:
+    mock = is_mock_mode(st.session_state.api_mode)
+    api_ready = bool(api_key)
+    if mock:
+        mode_chip = "Mock mode"
+    elif api_ready:
+        mode_chip = "Live API ready"
+    else:
+        mode_chip = "API key missing"
+    search_chip = "Web search enabled" if st.session_state.enable_web_search else "Web search disabled"
+    st.markdown(
+        f"""
+        <span class="status-pill">{html.escape(mode_chip)}</span>
+        <span class="status-pill">{html.escape(search_chip)}</span>
+        <span class="status-pill">News / market data APIs: not connected</span>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 def render_mode_selector() -> str:
     return st.radio(
         "Mode",
@@ -427,23 +448,43 @@ def render_demo_questions() -> None:
                     st.session_state.question_text = case["text"]
 
 
-def render_settings_expander(personas: dict[str, dict], has_api_key: bool) -> None:
+def render_settings_expander(personas: dict[str, dict], api_key: str) -> None:
     with st.expander("Settings / API status / persona details", expanded=False):
-        st.text_input("Model name", key="model_name")
-        st.checkbox(
-            "Mock mode",
-            key="mock_mode",
-            help="Use deterministic demo output instead of calling the OpenAI API.",
+        st.markdown("#### API settings")
+        st.radio(
+            "API mode",
+            [MOCK_MODE, LIVE_MODE],
+            key="api_mode",
+            horizontal=True,
         )
-        current_output = "Live OpenAI call" if has_api_key and not st.session_state.mock_mode else "Mock output"
-        st.markdown(
-            f"""
-            <span class="status-pill">OpenAI API: {'configured' if has_api_key else 'not configured'}</span>
-            <span class="status-pill">Current output: {current_output}</span>
-            <span class="status-pill">News API: not connected</span>
-            """,
-            unsafe_allow_html=True,
-        )
+        live_mode = st.session_state.api_mode == LIVE_MODE
+        if live_mode:
+            st.text_input(
+                "Enter your OpenAI API key",
+                key="openai_api_key",
+                type="password",
+                placeholder="sk-...",
+                help="Stored only in this Streamlit session. It is not saved to disk.",
+            )
+            st.text_input("Model name", key="model_name")
+            st.checkbox(
+                "Enable web search",
+                key="enable_web_search",
+                help="Allow the model to use OpenAI web search when making live API calls.",
+            )
+            st.caption(
+                "The model does not automatically access the live internet. Web search must be explicitly enabled."
+            )
+            st.info(
+                "Without web search, the model only uses the prompt, persona cards, user input, and its internal knowledge. "
+                "It does not automatically access current online information. For real-time news, current market narratives, "
+                "or recent events, enable web search or connect separate data APIs."
+            )
+        else:
+            st.caption("Mock mode uses fixed demo responses and does not call the OpenAI API.")
+        render_status_chips(api_key)
+        if live_mode and not api_key:
+            st.warning("Live OpenAI API mode is selected, but no API key is available. Enter a key above or set OPENAI_API_KEY.")
         st.caption(COMPACT_DISCLAIMER)
         st.markdown("#### Persona cards")
         for persona in personas.values():
@@ -480,7 +521,9 @@ def init_session(personas: dict[str, dict]) -> None:
     st.session_state.setdefault("mode", "One-on-One")
     st.session_state.setdefault("selected_persona_name", list(personas.keys())[0])
     st.session_state.setdefault("model_name", os.getenv("OPENAI_MODEL", "gpt-5.2"))
-    st.session_state.setdefault("mock_mode", not bool(os.getenv("OPENAI_API_KEY")))
+    st.session_state.setdefault("api_mode", MOCK_MODE)
+    st.session_state.setdefault("openai_api_key", "")
+    st.session_state.setdefault("enable_web_search", False)
     st.session_state.setdefault("question_text", "")
     st.session_state.setdefault("messages", [])
     st.session_state.setdefault("latest_question", "")
@@ -559,6 +602,8 @@ def main() -> None:
 
     init_session(personas)
     render_header()
+    api_key = resolve_openai_api_key(st.session_state.get("openai_api_key", ""))
+    render_status_chips(api_key)
     render_mode_selector()
     if st.session_state.mode == "One-on-One":
         render_persona_selector(personas)
@@ -576,7 +621,7 @@ def main() -> None:
 
     render_demo_questions()
     send = render_input_bar()
-    render_settings_expander(personas, bool(os.getenv("OPENAI_API_KEY")))
+    render_settings_expander(personas, api_key)
     render_history()
 
     if send:
@@ -602,12 +647,23 @@ def main() -> None:
                 question,
             )
 
-        client = LLMClient(model=st.session_state.model_name, mock=st.session_state.mock_mode)
+        mock = is_mock_mode(st.session_state.api_mode)
+        api_key = resolve_openai_api_key(st.session_state.get("openai_api_key", ""))
+        if not mock and not api_key:
+            st.warning("Live OpenAI API mode requires an API key. Enter your key in Settings or switch back to Mock mode.")
+            st.stop()
+
+        client = LLMClient(
+            model=st.session_state.model_name,
+            api_key=api_key,
+            mock=mock,
+            enable_web_search=st.session_state.enable_web_search,
+        )
         with st.spinner("Thinking through the narrative..."):
             try:
                 response = client.generate(instructions, user_input)
             except Exception as exc:
-                st.error(f"Model call failed: {exc}")
+                st.error(f"OpenAI API call failed: {exc}")
                 st.stop()
 
         st.session_state.latest_question = question

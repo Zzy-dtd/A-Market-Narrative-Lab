@@ -89,6 +89,20 @@ def test_mock_roundtable_response_is_valid_json_with_all_persona_ids():
     assert ids == {"value_allocator", "market_structure_trader", "behavioral_contrarian"}
 
 
+def test_llm_client_initializes_live_settings():
+    client = LLMClient(
+        model="test-model",
+        api_key="session-key",
+        mock=False,
+        enable_web_search=True,
+    )
+
+    assert client.model == "test-model"
+    assert client.api_key == "session-key"
+    assert client.mock is False
+    assert client.enable_web_search is True
+
+
 def test_add_disclaimer_appends_disclaimer():
     response = add_disclaimer("Educational response.")
 
