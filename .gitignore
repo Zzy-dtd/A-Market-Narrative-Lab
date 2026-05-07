@@ -7,5 +7,10 @@ __pycache__/
 venv/
 env/
 .env
+.env.local
 .DS_Store
 *.log
+node_modules/
+.next/
+out/
+coverage/

@@ -1,70 +1,65 @@
 # Market Narrative Lab
 
-Market Narrative Lab is an early demo for a conversational market-thinking simulator.
+Market Narrative Lab is a Next.js prototype for a conversational market-thinking simulator.
 
-The core idea is simple:
+The core idea:
 
-> Learn how different investors think.
+> Learn how different investors think, not copy their trades.
 
-Instead of giving stock picks, trading signals, or buy/sell recommendations, the project explores how different types of market participants might reason about:
+The app lets a user ask open-ended market questions and hear how different market participant personas reason through the same narrative.
 
-- individual stocks
-- broad market conditions
-- valuation debates
-- investor behavior
-- online market narratives
-- crowd psychology
-- speculative episodes
-- trading structure
+## What This Is
 
-The current demo includes three experimental personas:
+- A visual conversation interface for market reasoning
+- A one-on-one chat with a selected market participant persona
+- A roundtable discussion among several personas
+- An educational tool for understanding narratives, incentives, valuation debates, crowd behavior, and risk framing
+
+## What This Is Not
+
+- Not a stock picker
+- Not a trading signal generator
+- Not personalized investment advice
+- Not a tool that tells users what to buy or sell
+- Not a replacement for professional financial advice
+
+## Personas
 
 - Long-Term Value Allocator
 - Market Structure Trader
 - Behavioral Contrarian
 
-## Current Status
-
-This repository is only a working MVP demo.
-
-The current version is useful for testing the product direction, but it is not the final product. The reasoning logic, prompt structure, response format, and frontend design all still need significant iteration.
-
-In particular, the app still needs work on:
-
-- making the conversation feel more natural
-- improving the visual chat interface
-- refining persona behavior and response quality
-- improving roundtable discussion logic
-- connecting external information sources such as news or market data APIs
-- making the product experience less like a demo and more like a finished learning tool
-
-
 ## Run Locally
 
 ```bash
-pip install -r requirements.txt
-streamlit run app.py
+npm install
+npm run dev
 ```
 
-## Environment Variables
+Then open the local URL printed by Next.js, usually:
 
-You can optionally create a `.env` file if you want to provide a fallback OpenAI API key or model name:
+```text
+http://localhost:3000
+```
+
+## API Key
+
+Live responses require an OpenAI API key.
+
+Enter the key inside the app's Settings modal. The key is stored only in browser session state and is not saved to disk.
+
+You can optionally set a default model in `.env.local`:
 
 ```bash
-OPENAI_API_KEY=your_api_key_here
-OPENAI_MODEL=gpt-5.2
+NEXT_PUBLIC_DEFAULT_MODEL=gpt-5.2
 ```
 
-If no API key is provided, the app runs in mock mode.
+## Web Search And Market Data
 
-## API Modes
+Web search is optional and can be enabled from Settings. The model does not automatically browse the web unless web search is enabled.
 
-The app currently supports two API modes.
+For structured market data such as prices, short interest, options chains, borrow fees, filings, or fundamentals, separate financial data APIs are still required. Those are not connected yet.
 
-**Mock mode** does not require an API key. It returns fixed demo responses so the interface and persona flow can be tested without calling a live model.
+## Safety
 
-**Live OpenAI mode** requires an OpenAI API key. You can enter the key directly inside the app in the collapsed Settings section, or provide it through `.env` as an optional fallback. Keys entered in the app are stored only in the current Streamlit session and are not saved to disk.
-
-**Web search** is optional. The model does not automatically browse the web. If web search is disabled, the model only uses the prompt, persona cards, user input, and its internal knowledge. Enable web search in Settings if you want the OpenAI Responses API to use the web search tool.
-
-For market data such as prices, short interest, options chains, borrow fees, filings, or other structured financial data, separate financial data APIs are still needed. Those APIs are not connected in this demo yet.
+This app is for educational market reasoning only. It does not provide personalized investment advice, buy/sell recommendations, or price targets.
